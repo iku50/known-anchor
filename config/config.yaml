@@ -1,0 +1,14 @@
+mysql:
+  dataSource: root:123456@tcp(mysql:3306)/knownanchor?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+redis:
+  addr: redis:6379
+  password: ""
+  db: 0
+jwt:
+  salt: knownanchor
+  expiredtime: 86400
+mail:
+  host: smtp.qq.com
+  port: 465
+  username: 2945629368@qq.com
+  password: gcgbwslaiwzndcgj

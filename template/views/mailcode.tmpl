@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证码邮件</title>
+</head>
+<body>
+    <p>尊敬的 {{.username}}，</p>
+
+    <p>感谢您使用我们的服务！为了确保您的账户安全，我们生成了以下验证码供您使用：</p>
+
+    <h2 style="color: #007BFF; font-size: 24px;">验证码：{{.gencode}}</h2>
+
+    <p>此验证码将在 {{.ttl}} 分钟后过期，请尽快验证。</p>
+
+    <p>请注意，此验证码仅用于身份验证目的，不与任何其他信息相关。请勿与他人分享此验证码。</p>
+
+    <p>如果您没有请求此验证码或有任何疑问，请忽略此邮件。</p>
+
+    <p>谢谢！<br>
+       KnownAnchor团队</p>
+</body>
+</html>
