@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	dbmodel "known-anchors/dal/db/model"
 	"known-anchors/model"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-func (s *ServiceContext) AuthRegisterPost(req *model.AuthRegisterPostReq) (*model.AuthRegisterPostResp, error) {
+func (s *ServiceContext) AuthRegisterPost(c context.Context, req *model.AuthRegisterPostReq) (*model.AuthRegisterPostResp, error) {
 	uq := s.DBQuery.User
 	_, err := uq.FindByEmail(req.Email)
 	if err == nil {
@@ -40,14 +41,22 @@ func (s *ServiceContext) AuthRegisterPost(req *model.AuthRegisterPostReq) (*mode
 	}
 	// send mail
 	AcToken := strings.RandStringBytes(7)
-	mail.SendMailCode(req.Username, AcToken, req.Email, 5)
-	// set redis
-	var redisClient = *s.Redis
-	err = redisClient.Set(s.Ctx, user.Email, AcToken, 5*60*time.Second)
-	if err != nil {
-		log.Println(err)
-		return nil, errors.New("设置 Redis 失败")
-	}
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Println(err)
+			}
+		}()
+		err := mail.SendMailCode(req.Username, AcToken, req.Email, 5)
+		if err != nil {
+			log.Println(err)
+		}
+		var redisClient = *s.Redis
+		err = redisClient.Set(c, user.Email, AcToken, 5*60*time.Second)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 	// mail.SendMailCode()
 	resp := model.AuthRegisterPostResp{}
 	return &resp, nil

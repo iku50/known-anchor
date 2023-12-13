@@ -20,7 +20,7 @@ func AuthRegisterPost(c *gin.Context) {
 		})
 		return
 	}
-	resp, err := s.AuthRegisterPost(&req)
+	resp, err := s.AuthRegisterPost(c.Request.Context(), &req)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"data": gin.H{},

@@ -20,7 +20,7 @@ func AuthActivatePost(c *gin.Context) {
 		})
 		return
 	}
-	resp, err := s.AuthActivatePost(&req)
+	resp, err := s.AuthActivatePost(c.Request.Context(), &req)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"data": gin.H{},

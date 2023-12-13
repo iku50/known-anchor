@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"known-anchors/model"
 	"known-anchors/util/mail"
@@ -10,7 +11,7 @@ import (
 	"time"
 )
 
-func (s *ServiceContext) AuthActivatePost(req *model.AuthActivatePostReq) (*model.AuthActivatePostResp, error) {
+func (s *ServiceContext) AuthActivatePost(c context.Context, req *model.AuthActivatePostReq) (*model.AuthActivatePostResp, error) {
 	uq := s.DBQuery.User
 	user, err := uq.FindByEmail(req.Email)
 	if err != nil {
@@ -24,12 +25,12 @@ func (s *ServiceContext) AuthActivatePost(req *model.AuthActivatePostReq) (*mode
 	AcToken := strings.RandStringBytes(7)
 	mail.SendMailCode(req.Username, AcToken, req.Email, 5)
 	var redis = *s.Redis
-	err = redis.Del(s.Ctx, user.Email)
+	err = redis.Del(c, user.Email)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("删除旧有验证码失败")
 	}
-	err = redis.Set(s.Ctx, req.Email, AcToken, 5*60*time.Second)
+	err = redis.Set(c, req.Email, AcToken, 5*60*time.Second)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("设置 Redis 失败")

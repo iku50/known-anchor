@@ -20,7 +20,7 @@ func AuthConfirmPost(c *gin.Context) {
 		})
 		return
 	}
-	resp, err := s.AuthConfirmPost(&req)
+	resp, err := s.AuthConfirmPost(c.Request.Context(), &req)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"data": gin.H{},

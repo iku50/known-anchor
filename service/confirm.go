@@ -1,15 +1,16 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"known-anchors/model"
 	"log"
 )
 
-func (s *ServiceContext) AuthConfirmPost(req *model.AuthConfirmPostReq) (*model.AuthConfirmPostResp, error) {
+func (s *ServiceContext) AuthConfirmPost(c context.Context, req *model.AuthConfirmPostReq) (*model.AuthConfirmPostResp, error) {
 	redis := *s.Redis
 	uq := s.DBQuery.User
-	Token, err := redis.Get(s.Ctx, req.Email)
+	Token, err := redis.Get(c, req.Email)
 	if err != nil {
 		log.Println(err)
 		return nil, errors.New("无法获取 Token")
@@ -23,7 +24,7 @@ func (s *ServiceContext) AuthConfirmPost(req *model.AuthConfirmPostReq) (*model.
 		log.Println(err)
 		return nil, errors.New("激活失败")
 	}
-	redis.Del(s.Ctx, req.Email)
+	redis.Del(c, req.Email)
 	resp := model.AuthConfirmPostResp{}
 	return &resp, nil
 }

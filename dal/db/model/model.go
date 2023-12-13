@@ -8,11 +8,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Username     string `gorm:"column:username;unique;not null"`
-	Email        string `gorm:"column:email;unique;not null"`
-	PasswordHash string `gorm:"column:password_hash;not null"`
-	Activated    bool   `gorm:"column:activated;default:false"`
-	// ActivationToken string `gorm:"column:activation_token"`
+	Username        string `gorm:"column:username;unique;not null"`
+	Email           string `gorm:"column:email;unique;not null"`
+	PasswordHash    string `gorm:"column:password_hash;not null"`
+	Activated       bool   `gorm:"column:activated;default:false"`
+	ActivationToken string `gorm:"column:activation_token"`
 	// LastLogin    time.Time `gorm:"column:last_login;default:current_timestamp"`
 	// IsActive     bool      `gorm:"column:is_active;default:true"`
 }

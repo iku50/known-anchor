@@ -30,7 +30,7 @@ func GetAuthFaildJSON() gin.H {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var uid uint64
-		ctx := c.MustGet("service").(*service.ServiceContext).Ctx
+		ctx := c.Request.Context()
 		uc := c.MustGet("service").(*service.ServiceContext).DBQuery.User
 		tokenStr := c.GetHeader("Authorization")
 		// 在 Redis 中检查 token 是否存在
