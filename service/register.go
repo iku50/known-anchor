@@ -13,11 +13,26 @@ import (
 )
 
 func (s *ServiceContext) AuthRegisterPost(c context.Context, req *model.AuthRegisterPostReq) (*model.AuthRegisterPostResp, error) {
+	// check if email exists, if so and not activated, delete it, else return error
 	uq := s.DBQuery.User
-	_, err := uq.FindByEmail(req.Email)
-	if err == nil {
-		log.Println(err)
-		return nil, errors.New("邮箱已存在")
+	if user, err := uq.FindByEmail(req.Email); err == nil {
+		if user.Activated {
+			log.Println(err)
+			return nil, errors.New("邮箱已存在")
+		} else {
+			redis := *s.Redis
+			err = redis.Del(c, user.Email)
+			if err != nil {
+				log.Println(err)
+				return nil, errors.New("删除旧有验证码失败")
+			}
+			// delete user
+			err = uq.DeleteByEmail(user.Email)
+			if err != nil {
+				log.Println(err)
+				return nil, errors.New("删除旧有用户失败")
+			}
+		}
 	}
 	hashpassword, err := pwd.HashPassword(req.Password)
 	if err != nil {
@@ -52,7 +67,8 @@ func (s *ServiceContext) AuthRegisterPost(c context.Context, req *model.AuthRegi
 			log.Println(err)
 		}
 		var redisClient = *s.Redis
-		err = redisClient.Set(c, user.Email, AcToken, 5*60*time.Second)
+		// 这里的 context 不能用 c，c 是该请求的 context，但这里是异步的，可能在返回请求后才执行到要 set 的时候，所以要新建一个 context
+		err = redisClient.Set(context.Background(), user.Email, AcToken, 5*60*time.Second)
 		if err != nil {
 			log.Println(err)
 		}

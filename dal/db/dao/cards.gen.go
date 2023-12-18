@@ -33,15 +33,9 @@ func newCard(db *gorm.DB, opts ...gen.DOOption) card {
 	_card.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_card.DeletedAt = field.NewField(tableName, "deleted_at")
 	_card.DeckID = field.NewUint(tableName, "deck_id")
-	_card.UserID = field.NewUint(tableName, "user_id")
+	_card.OwnerID = field.NewUint(tableName, "owner_id")
 	_card.Front = field.NewString(tableName, "front")
 	_card.Back = field.NewString(tableName, "back")
-	_card.Status = field.NewString(tableName, "status")
-	_card.LastReview = field.NewTime(tableName, "last_review")
-	_card.NextReview = field.NewTime(tableName, "next_review")
-	_card.Interval = field.NewInt(tableName, "interval")
-	_card.Repetitions = field.NewInt(tableName, "repetitions")
-	_card.Ease = field.NewFloat64(tableName, "ease")
 
 	_card.fillFieldMap()
 
@@ -51,21 +45,15 @@ func newCard(db *gorm.DB, opts ...gen.DOOption) card {
 type card struct {
 	cardDo
 
-	ALL         field.Asterisk
-	ID          field.Uint
-	CreatedAt   field.Time
-	UpdatedAt   field.Time
-	DeletedAt   field.Field
-	DeckID      field.Uint
-	UserID      field.Uint
-	Front       field.String
-	Back        field.String
-	Status      field.String
-	LastReview  field.Time
-	NextReview  field.Time
-	Interval    field.Int
-	Repetitions field.Int
-	Ease        field.Float64
+	ALL       field.Asterisk
+	ID        field.Uint
+	CreatedAt field.Time
+	UpdatedAt field.Time
+	DeletedAt field.Field
+	DeckID    field.Uint
+	OwnerID   field.Uint
+	Front     field.String
+	Back      field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -87,15 +75,9 @@ func (c *card) updateTableName(table string) *card {
 	c.UpdatedAt = field.NewTime(table, "updated_at")
 	c.DeletedAt = field.NewField(table, "deleted_at")
 	c.DeckID = field.NewUint(table, "deck_id")
-	c.UserID = field.NewUint(table, "user_id")
+	c.OwnerID = field.NewUint(table, "owner_id")
 	c.Front = field.NewString(table, "front")
 	c.Back = field.NewString(table, "back")
-	c.Status = field.NewString(table, "status")
-	c.LastReview = field.NewTime(table, "last_review")
-	c.NextReview = field.NewTime(table, "next_review")
-	c.Interval = field.NewInt(table, "interval")
-	c.Repetitions = field.NewInt(table, "repetitions")
-	c.Ease = field.NewFloat64(table, "ease")
 
 	c.fillFieldMap()
 
@@ -112,21 +94,15 @@ func (c *card) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *card) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 14)
+	c.fieldMap = make(map[string]field.Expr, 8)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["created_at"] = c.CreatedAt
 	c.fieldMap["updated_at"] = c.UpdatedAt
 	c.fieldMap["deleted_at"] = c.DeletedAt
 	c.fieldMap["deck_id"] = c.DeckID
-	c.fieldMap["user_id"] = c.UserID
+	c.fieldMap["owner_id"] = c.OwnerID
 	c.fieldMap["front"] = c.Front
 	c.fieldMap["back"] = c.Back
-	c.fieldMap["status"] = c.Status
-	c.fieldMap["last_review"] = c.LastReview
-	c.fieldMap["next_review"] = c.NextReview
-	c.fieldMap["interval"] = c.Interval
-	c.fieldMap["repetitions"] = c.Repetitions
-	c.fieldMap["ease"] = c.Ease
 }
 
 func (c card) clone(db *gorm.DB) card {

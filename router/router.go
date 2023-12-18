@@ -25,23 +25,80 @@ func NewRouter(s *service.ServiceContext) *gin.Engine {
 		c.Next()
 	})
 	authGroup := router.Group("/api/auth")
-	authGroup.POST("/login", api.AuthLoginPost)
-	authGroup.POST("/register", api.AuthRegisterPost)
-	authGroup.POST("/activate", api.AuthActivatePost)
-	authGroup.POST("/confitm", api.AuthConfirmPost)
+	addRoutes(authGroup, authRoutes)
 
 	router.Use(jwt.AuthMiddleware())
+	deckGroup := router.Group("/api/decks")
+	addRoutes(deckGroup, deckRoutes)
+	addRoutes(router.Group("/api"), routes)
+	return router
+}
+
+func addRoutes(router *gin.RouterGroup, routes Routes) {
 	for _, route := range routes {
 		router.Handle(route.Method, route.Pattern, route.Handler)
 	}
-	return router
+}
+
+var authRoutes = Routes{
+	{
+		"AuthLoginPost",
+		"POST",
+		"/login",
+		api.AuthLoginPost,
+	},
+	{
+		"AuthRegisterPost",
+		"POST",
+		"/register",
+		api.AuthRegisterPost,
+	},
+	{
+		"AuthConfirmPost",
+		"POST",
+		"/confirm",
+		api.AuthConfirmPost,
+	},
+}
+
+var deckRoutes = Routes{
+	{
+		"CreateDeck",
+		"POST",
+		"/decks",
+		api.DeckCreate,
+	},
+	{
+		"GetDeck",
+		"GET",
+		"/decks/{id}",
+		api.DeckGet,
+	},
+	{
+		"UpdateDeck",
+		"PUT",
+		"/decks/{id}",
+		api.DeckUpdate,
+	},
+	{
+		"DeleteDeck",
+		"DELETE",
+		"/decks/{id}",
+		api.DeckDelete,
+	},
+	{
+		"ListDecks",
+		"GET",
+		"/decks",
+		api.DeckList,
+	},
 }
 
 var routes = Routes{
 	{
 		"UserUpdate",
 		"PUT",
-		"/api/user/:userid",
+		"/user/:userid",
 		api.UserUpdate,
 	},
 }

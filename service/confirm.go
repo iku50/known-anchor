@@ -13,7 +13,7 @@ func (s *ServiceContext) AuthConfirmPost(c context.Context, req *model.AuthConfi
 	Token, err := redis.Get(c, req.Email)
 	if err != nil {
 		log.Println(err)
-		return nil, errors.New("无法获取 Token")
+		return nil, errors.New("获取验证码失败")
 	}
 	if Token != req.ConfirmToken {
 		log.Println("token error")

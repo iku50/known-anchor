@@ -17,3 +17,10 @@ type UserMethod interface {
 	//update users set activated=@activated where email=@email
 	UpdateActivatedByEmail(email string, activated bool) error
 }
+
+type DeckMethod interface {
+	// select * from decks where user_id=@user_id limit @limit offset @offset
+	ListByUserID(user_id uint, limit int, offset int) ([]gen.T, error)
+	// select count(*) from decks where user_id=@user_id
+	CountByUserID(user_id uint) (int64, error)
+}

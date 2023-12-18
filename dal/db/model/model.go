@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -14,7 +12,6 @@ type User struct {
 	Activated       bool   `gorm:"column:activated;default:false"`
 	ActivationToken string `gorm:"column:activation_token"`
 	// LastLogin    time.Time `gorm:"column:last_login;default:current_timestamp"`
-	// IsActive     bool      `gorm:"column:is_active;default:true"`
 }
 
 type Post struct {
@@ -41,14 +38,8 @@ type Deck struct {
 
 type Card struct {
 	gorm.Model
-	DeckID      uint      `gorm:"column:deck_id;not null"`
-	UserID      uint      `gorm:"column:user_id;not null"`
-	Front       string    `gorm:"column:front;not null"`
-	Back        string    `gorm:"column:back;not null"`
-	Status      string    `gorm:"column:status;type:ENUM('new', 'review', 'mastered');default:'new'"`
-	LastReview  time.Time `gorm:"column:last_review"`
-	NextReview  time.Time `gorm:"column:next_review"`
-	Interval    int       `gorm:"column:interval"`
-	Repetitions int       `gorm:"column:repetitions"`
-	Ease        float64   `gorm:"column:ease"`
+	DeckID  uint   `gorm:"column:deck_id;not null"`
+	OwnerID uint   `gorm:"column:owner_id;not null"`
+	Front   string `gorm:"column:front;not null"`
+	Back    string `gorm:"column:back;not null"`
 }

@@ -24,5 +24,7 @@ func main() {
 	g.ApplyInterface(func(model.Method) {}, model.User{}, model.Post{}, model.Comment{}, model.Deck{}, model.Card{})
 
 	g.ApplyInterface(func(model.UserMethod) {}, model.User{})
+
+	g.ApplyInterface(func(model.DeckMethod) {}, model.Deck{})
 	g.Execute()
 }

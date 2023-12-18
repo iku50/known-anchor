@@ -178,6 +178,8 @@ type IDeckDo interface {
 	schema.Tabler
 
 	FindByID(id uint) (result model.Deck, err error)
+	ListByUserID(user_id uint, limit int, offset int) (result []model.Deck, err error)
+	CountByUserID(user_id uint) (result int64, err error)
 }
 
 // Where("id=@id")
@@ -190,6 +192,38 @@ func (d deckDo) FindByID(id uint) (result model.Deck, err error) {
 
 	var executeSQL *gorm.DB
 	executeSQL = d.UnderlyingDB().Where(generateSQL.String(), params...).Take(&result) // ignore_security_alert
+	err = executeSQL.Error
+
+	return
+}
+
+// select * from decks where user_id=@user_id limit @limit offset @offset
+func (d deckDo) ListByUserID(user_id uint, limit int, offset int) (result []model.Deck, err error) {
+	var params []interface{}
+
+	var generateSQL strings.Builder
+	params = append(params, user_id)
+	params = append(params, limit)
+	params = append(params, offset)
+	generateSQL.WriteString("select * from decks where user_id=? limit ? offset ? ")
+
+	var executeSQL *gorm.DB
+	executeSQL = d.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert
+	err = executeSQL.Error
+
+	return
+}
+
+// select count(*) from decks where user_id=@user_id
+func (d deckDo) CountByUserID(user_id uint) (result int64, err error) {
+	var params []interface{}
+
+	var generateSQL strings.Builder
+	params = append(params, user_id)
+	generateSQL.WriteString("select count(*) from decks where user_id=? ")
+
+	var executeSQL *gorm.DB
+	executeSQL = d.UnderlyingDB().Raw(generateSQL.String(), params...).Take(&result) // ignore_security_alert
 	err = executeSQL.Error
 
 	return
