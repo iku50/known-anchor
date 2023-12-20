@@ -22,5 +22,19 @@ func (s *ServiceContext) DeckGet(uid uint64, req *model.DeckGetReq) (*model.Deck
 		Tags:  deck.Tags,
 		Ispub: deck.Ispub,
 	}
+	uc := s.DBQuery.Card
+	cards, err := uc.ListByDeckID(deck.ID, 5, 0)
+	if err != nil {
+		log.Println(err)
+		return nil, errors.New("获取卡片失败")
+	}
+	resp.Cards = make([]model.Cards, len(cards))
+	for i, v := range cards {
+		resp.Cards[i] = model.Cards{
+			Front: v.Front,
+			Back:  v.Back,
+		}
+	}
+
 	return &resp, nil
 }

@@ -24,3 +24,10 @@ type DeckMethod interface {
 	// select count(*) from decks where user_id=@user_id
 	CountByUserID(user_id uint) (int64, error)
 }
+
+type CardMethod interface {
+	// select * from cards where deck_id=@deck_id limit @limit offset @offset
+	ListByDeckID(deck_id uint, limit int, offset int) ([]gen.T, error)
+	// select count(*) from cards where deck_id=@deck_id
+	CountByDeckID(deck_id uint) (int64, error)
+}

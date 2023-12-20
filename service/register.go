@@ -62,10 +62,17 @@ func (s *ServiceContext) AuthRegisterPost(c context.Context, req *model.AuthRegi
 				log.Println(err)
 			}
 		}()
-		err := mail.SendMailCode(req.Username, AcToken, req.Email, 5)
+		m, err := mail.MailCode(req.Username, AcToken, req.Email, 5)
 		if err != nil {
 			log.Println(err)
 		}
+
+		mj, err := mail.MailToJson(m)
+		if err != nil {
+			log.Println(err)
+		}
+
+		s.WorkProdecer.Produce("service", "sendmail", mj)
 		var redisClient = *s.Redis
 		// 这里的 context 不能用 c，c 是该请求的 context，但这里是异步的，可能在返回请求后才执行到要 set 的时候，所以要新建一个 context
 		err = redisClient.Set(context.Background(), user.Email, AcToken, 5*60*time.Second)

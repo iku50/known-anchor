@@ -178,6 +178,8 @@ type ICardDo interface {
 	schema.Tabler
 
 	FindByID(id uint) (result model.Card, err error)
+	ListByDeckID(deck_id uint, limit int, offset int) (result []model.Card, err error)
+	CountByDeckID(deck_id uint) (result int64, err error)
 }
 
 // Where("id=@id")
@@ -190,6 +192,38 @@ func (c cardDo) FindByID(id uint) (result model.Card, err error) {
 
 	var executeSQL *gorm.DB
 	executeSQL = c.UnderlyingDB().Where(generateSQL.String(), params...).Take(&result) // ignore_security_alert
+	err = executeSQL.Error
+
+	return
+}
+
+// select * from cards where deck_id=@deck_id limit @limit offset @offset
+func (c cardDo) ListByDeckID(deck_id uint, limit int, offset int) (result []model.Card, err error) {
+	var params []interface{}
+
+	var generateSQL strings.Builder
+	params = append(params, deck_id)
+	params = append(params, limit)
+	params = append(params, offset)
+	generateSQL.WriteString("select * from cards where deck_id=? limit ? offset ? ")
+
+	var executeSQL *gorm.DB
+	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Find(&result) // ignore_security_alert
+	err = executeSQL.Error
+
+	return
+}
+
+// select count(*) from cards where deck_id=@deck_id
+func (c cardDo) CountByDeckID(deck_id uint) (result int64, err error) {
+	var params []interface{}
+
+	var generateSQL strings.Builder
+	params = append(params, deck_id)
+	generateSQL.WriteString("select count(*) from cards where deck_id=? ")
+
+	var executeSQL *gorm.DB
+	executeSQL = c.UnderlyingDB().Raw(generateSQL.String(), params...).Take(&result) // ignore_security_alert
 	err = executeSQL.Error
 
 	return

@@ -27,6 +27,11 @@ type Config struct {
 		UserName string `yaml:"username"`
 		Password string `yaml:"password"`
 	} `yaml:"mail"`
+	RabbitMQ struct {
+		Addr     string `yaml:"addr"`
+		UserName string `yaml:"username"`
+		Password string `yaml:"password"`
+	} `yaml:"rabbitmq"`
 }
 
 var once sync.Once

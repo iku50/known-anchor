@@ -4,6 +4,7 @@ import (
 	"known-anchors/model"
 	"known-anchors/service"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,15 +13,38 @@ func DeckList(c *gin.Context) {
 	service := c.MustGet("service").(*service.ServiceContext)
 
 	req := &model.DeckListReq{}
-	if err := c.ShouldBind(req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"data": nil,
-			"meta": gin.H{
-				"msg":  "参数错误",
-				"code": 400,
-			},
-		})
-		return
+	// 从 params 中获取参数
+	if limit := c.Query("limit"); limit != "" {
+		var err error
+		req.Limit, err = strconv.Atoi(limit)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"data": nil,
+				"meta": gin.H{
+					"msg":  "参数错误",
+					"code": 400,
+				},
+			})
+			return
+		}
+	} else {
+		req.Limit = 10
+	}
+	if offset := c.Query("offset"); offset != "" {
+		var err error
+		req.Offset, err = strconv.Atoi(offset)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"data": nil,
+				"meta": gin.H{
+					"msg":  "参数错误",
+					"code": 400,
+				},
+			})
+			return
+		}
+	} else {
+		req.Offset = 0
 	}
 	uid := c.MustGet("uid").(uint64)
 

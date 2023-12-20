@@ -4,6 +4,7 @@ import (
 	"known-anchors/model"
 	"known-anchors/service"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +13,20 @@ func DeckDelete(c *gin.Context) {
 	service := c.MustGet("service").(*service.ServiceContext)
 
 	req := &model.DeckDeleteReq{}
-	if err := c.ShouldBind(req); err != nil {
+	if id, ok := c.Params.Get("id"); ok {
+		rId, err := strconv.Atoi(id)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"data": nil,
+				"meta": gin.H{
+					"msg":  "参数错误",
+					"code": 400,
+				},
+			})
+			return
+		}
+		req.Id = uint(rId)
+	} else {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"data": nil,
 			"meta": gin.H{

@@ -65,31 +65,31 @@ var deckRoutes = Routes{
 	{
 		"CreateDeck",
 		"POST",
-		"/decks",
+		"/",
 		api.DeckCreate,
 	},
 	{
 		"GetDeck",
 		"GET",
-		"/decks/{id}",
+		"/:id",
 		api.DeckGet,
 	},
 	{
 		"UpdateDeck",
 		"PUT",
-		"/decks/{id}",
+		"/",
 		api.DeckUpdate,
 	},
 	{
 		"DeleteDeck",
 		"DELETE",
-		"/decks/{id}",
+		"/:id",
 		api.DeckDelete,
 	},
 	{
 		"ListDecks",
 		"GET",
-		"/decks",
+		"/list",
 		api.DeckList,
 	},
 }
