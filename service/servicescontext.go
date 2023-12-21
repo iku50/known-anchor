@@ -16,6 +16,7 @@ var once sync.Once
 
 func NewServiceContext() *ServiceContext {
 	var sc ServiceContext
+	dal.InitDB()
 	once.Do(func() {
 		sc.DBQuery = dao.Use(dal.DB.Debug())
 		sc.Redis = redis.InitRedisClient()

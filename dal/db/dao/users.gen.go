@@ -36,7 +36,6 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.Email = field.NewString(tableName, "email")
 	_user.PasswordHash = field.NewString(tableName, "password_hash")
 	_user.Activated = field.NewBool(tableName, "activated")
-	_user.ActivationToken = field.NewString(tableName, "activation_token")
 
 	_user.fillFieldMap()
 
@@ -46,16 +45,15 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 type user struct {
 	userDo
 
-	ALL             field.Asterisk
-	ID              field.Uint
-	CreatedAt       field.Time
-	UpdatedAt       field.Time
-	DeletedAt       field.Field
-	Username        field.String
-	Email           field.String
-	PasswordHash    field.String
-	Activated       field.Bool
-	ActivationToken field.String
+	ALL          field.Asterisk
+	ID           field.Uint
+	CreatedAt    field.Time
+	UpdatedAt    field.Time
+	DeletedAt    field.Field
+	Username     field.String
+	Email        field.String
+	PasswordHash field.String
+	Activated    field.Bool
 
 	fieldMap map[string]field.Expr
 }
@@ -80,7 +78,6 @@ func (u *user) updateTableName(table string) *user {
 	u.Email = field.NewString(table, "email")
 	u.PasswordHash = field.NewString(table, "password_hash")
 	u.Activated = field.NewBool(table, "activated")
-	u.ActivationToken = field.NewString(table, "activation_token")
 
 	u.fillFieldMap()
 
@@ -97,7 +94,7 @@ func (u *user) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 9)
+	u.fieldMap = make(map[string]field.Expr, 8)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
@@ -106,7 +103,6 @@ func (u *user) fillFieldMap() {
 	u.fieldMap["email"] = u.Email
 	u.fieldMap["password_hash"] = u.PasswordHash
 	u.fieldMap["activated"] = u.Activated
-	u.fieldMap["activation_token"] = u.ActivationToken
 }
 
 func (u user) clone(db *gorm.DB) user {

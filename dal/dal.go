@@ -16,7 +16,7 @@ import (
 var DB *gorm.DB
 var once sync.Once
 
-func init() {
+func InitDB() {
 	once.Do(func() {
 		DB = ConnectDB(config.Conf.Mysql.DataSources).Debug()
 		_ = DB.AutoMigrate(&model.User{}, &model.Card{}, &model.Comment{}, &model.Deck{}, &model.Post{})
