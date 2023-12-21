@@ -6,7 +6,12 @@ import (
 )
 
 func TestSendMailCode(t *testing.T) {
-	m, err := mail.MailCode("test", "123456", "wizo.o@outlook.com", 5)
+	m, err := mail.MailCode(&mail.MailCodeData{
+		Username: "kkk",
+		Code:     "123",
+		To:       "tto",
+		TTL:      1,
+	})
 	if err != nil {
 		t.Error(err)
 	}

@@ -2,66 +2,45 @@ package mq
 
 import (
 	"context"
-	"log"
-	"time"
+	"fmt"
+	"known-anchors/config"
 
-	ampq "github.com/rabbitmq/amqp091-go"
+	kafka "github.com/segmentio/kafka-go"
 )
 
 type Producer struct {
-	Conn    *ampq.Connection
-	Channel *ampq.Channel
-	Queue   *ampq.Queue
-	Tag     string
-	Done    chan error
+	Writer  *kafka.Writer
+	Topic   string
+	ProChan chan Message
 }
 
-func NewProducer() *Producer {
-	p := Producer{
-		Tag:  "producer",
-		Done: make(chan error),
+func NewProducer(topic string) *Producer {
+	return &Producer{
+		Writer: &kafka.Writer{
+			Addr:                   kafka.TCP(config.Conf.Kafka.Addr),
+			Topic:                  topic,
+			Balancer:               &kafka.LeastBytes{},
+			AllowAutoTopicCreation: true,
+		},
+		Topic:   topic,
+		ProChan: make(chan Message, 100),
 	}
-	var err error
-	p.Conn, err = ampq.Dial("amqp://guest:guest@localhost:5672/")
-	failOnError(err, "Failed to connect to RabbitMQ")
-	defer p.Conn.Close()
-	p.Channel, err = p.Conn.Channel()
-	failOnError(err, "Failed to open a channel")
-	defer p.Channel.Close()
-
-	*p.Queue, err = p.Channel.QueueDeclare(
-		"hello", // name
-		true,    // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	failOnError(err, "Failed to declare a queue")
-	return &p
 }
 
-func (p *Producer) Produce(from string, funcName string, content string) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	msg := Message{
-		From:      from,
-		Func:      funcName,
-		Content:   content,
-		TimeStamp: time.Now().Unix(),
+func (p *Producer) Produce() {
+	for msg := range p.ProChan {
+		if err := p.Writer.WriteMessages(context.Background(), kafka.Message{
+			Key:   []byte(msg.Key),
+			Value: []byte(msg.Value),
+		}); err != nil {
+			fmt.Println("failed to write messages:", err)
+		}
 	}
-	data, err := msg.toBytes()
-	failOnError(err, "Failed to marshal message")
-	err = p.Channel.PublishWithContext(ctx,
-		"",           // exchange
-		p.Queue.Name, // routing key
-		false,        // mandatory
-		false,        // immediate
-		ampq.Publishing{
-			DeliveryMode: ampq.Persistent,
-			ContentType:  "text/plain",
-			Body:         data,
-		})
-	failOnError(err, "Failed to publish a message")
-	log.Printf(" [x] Sent %s", data)
+}
+
+func (p *Producer) Close() error {
+	if err := p.Writer.Close(); err != nil {
+		return err
+	}
+	return nil
 }

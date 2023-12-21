@@ -12,16 +12,5 @@ mail:
   port: 465
   username: 2945629368@qq.com
   password: gcgbwslaiwzndcgj
-rabbitmq:
-  addr: amqp://guest:guest@rabbitmq:5672/
-  queue: knownanchor
-  exchange: knownanchor
-  routingkey: knownanchor
-  deadletterexchange: knownanchor.deadletter
-  deadletterqueue: knownanchor.deadletter
-  deadletterroutingkey: knownanchor.deadletter
-  maxretry: 3
-  retrydelay: 5000
-  retrydelaymax: 300000
-  retrydelaymultiplier: 1.5
-  
+kafka:
+  addr: kafka1:19092

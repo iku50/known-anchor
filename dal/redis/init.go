@@ -29,6 +29,10 @@ func InitRedisClient() *RedisClient {
 	return redisClient
 }
 
+func (r *RedisClient) Close() error {
+	return r.Client.Close()
+}
+
 func (r *RedisClient) Set(ctx context.Context, key string, value interface{}, expireTime time.Duration) error {
 	return r.Client.Set(ctx, key, value, expireTime).Err()
 }

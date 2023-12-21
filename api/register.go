@@ -4,11 +4,14 @@ import (
 	"known-anchors/model"
 	"known-anchors/service"
 
+	"known-anchors/dal/mq"
+
 	"github.com/gin-gonic/gin"
 )
 
 func AuthRegisterPost(c *gin.Context) {
 	s := c.MustGet("service").(*service.ServiceContext)
+	m := c.MustGet("mailproducer").(chan mq.Message)
 	req := model.AuthRegisterPostReq{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(400, gin.H{
@@ -20,7 +23,7 @@ func AuthRegisterPost(c *gin.Context) {
 		})
 		return
 	}
-	resp, err := s.AuthRegisterPost(c.Request.Context(), &req)
+	resp, err := s.AuthRegisterPost(c.Request.Context(), &req, m)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"data": gin.H{},

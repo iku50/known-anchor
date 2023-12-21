@@ -3,30 +3,35 @@ package router
 import (
 	"known-anchors/api"
 	"known-anchors/middleware/jwt"
+	"known-anchors/middleware/mailproducer"
 	"known-anchors/service"
+	"known-anchors/util/close"
+	"known-anchors/util/mail"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Route struct {
-	Name    string
-	Method  string
-	Pattern string
-	Handler gin.HandlerFunc
+	Name     string
+	Method   string
+	Pattern  string
+	Handlers []gin.HandlerFunc
 }
 
 type Routes []Route
 
-func NewRouter(s *service.ServiceContext) *gin.Engine {
+func NewRouter(s *service.ServiceContext, cl *close.Close) *gin.Engine {
 	router := gin.Default()
-
+	mailconsumer := mail.NewMailConsumer()
+	go mailconsumer.Consume()
+	cl.AddCloseable(mailconsumer)
 	router.Use(func(c *gin.Context) {
 		c.Set("service", s)
+		c.Set("closechan", cl)
 		c.Next()
 	})
 	authGroup := router.Group("/api/auth")
 	addRoutes(authGroup, authRoutes)
-
 	router.Use(jwt.AuthMiddleware())
 	deckGroup := router.Group("/api/decks")
 	addRoutes(deckGroup, deckRoutes)
@@ -36,7 +41,7 @@ func NewRouter(s *service.ServiceContext) *gin.Engine {
 
 func addRoutes(router *gin.RouterGroup, routes Routes) {
 	for _, route := range routes {
-		router.Handle(route.Method, route.Pattern, route.Handler)
+		router.Handle(route.Method, route.Pattern, route.Handlers...)
 	}
 }
 
@@ -45,19 +50,19 @@ var authRoutes = Routes{
 		"AuthLoginPost",
 		"POST",
 		"/login",
-		api.AuthLoginPost,
+		[]gin.HandlerFunc{api.AuthLoginPost},
 	},
 	{
 		"AuthRegisterPost",
 		"POST",
 		"/register",
-		api.AuthRegisterPost,
+		[]gin.HandlerFunc{mailproducer.MailProducerMiddleWare(), api.AuthRegisterPost},
 	},
 	{
 		"AuthConfirmPost",
 		"POST",
 		"/confirm",
-		api.AuthConfirmPost,
+		[]gin.HandlerFunc{api.AuthConfirmPost},
 	},
 }
 
@@ -66,31 +71,31 @@ var deckRoutes = Routes{
 		"CreateDeck",
 		"POST",
 		"/",
-		api.DeckCreate,
+		[]gin.HandlerFunc{api.DeckCreate},
 	},
 	{
 		"GetDeck",
 		"GET",
 		"/:id",
-		api.DeckGet,
+		[]gin.HandlerFunc{api.DeckGet},
 	},
 	{
 		"UpdateDeck",
 		"PUT",
 		"/",
-		api.DeckUpdate,
+		[]gin.HandlerFunc{api.DeckUpdate},
 	},
 	{
 		"DeleteDeck",
 		"DELETE",
 		"/:id",
-		api.DeckDelete,
+		[]gin.HandlerFunc{api.DeckDelete},
 	},
 	{
 		"ListDecks",
 		"GET",
 		"/list",
-		api.DeckList,
+		[]gin.HandlerFunc{api.DeckList},
 	},
 }
 
@@ -99,6 +104,6 @@ var routes = Routes{
 		"UserUpdate",
 		"PUT",
 		"/user/:userid",
-		api.UserUpdate,
+		[]gin.HandlerFunc{api.UserUpdate},
 	},
 }
